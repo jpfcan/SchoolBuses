@@ -11,10 +11,17 @@
     <string name="average_time_between_stops_placeholder" formatted="false">Tiempo promedio entre paradas: %s</string>
     <string name="route_estimated_time_placeholder" formatted="false">Tiempo estimado ruta: %s</string>
     <string name="time_left_reload_placeholder">Por favor espere %d segundos más para recargar.</string>
+    <string name="stop_title_placeholder" formatted="false">Parada #%d</string>
+    <string name="time_from_start_placeholder" formatted="false">Tiempo desde inicio: %s</string>
+
+    <!-- TITLES -->
+    <string name="starting_point">Inicio</string>
+    <string name="last_stop_title">Última parada</string>
 
     <!-- HINTS -->
     <string name="bus_query_hint">Buscar bus</string>
 
     <!-- ERROR -->
     <string name="connection_error_message">Hubo un error obteniendo la informacion de los buses.</string>
+
 </resources>
