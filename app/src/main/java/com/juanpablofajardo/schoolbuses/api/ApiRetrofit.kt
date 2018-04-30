@@ -8,6 +8,8 @@ import retrofit2.http.Url
 
 /**
  * Created by Juan Pablo Fajardo Cano on 4/24/18.
+ *
+ * Interface used to define the methods to get info from server wiht retrofit.
  */
 interface ApiRetrofit {
 

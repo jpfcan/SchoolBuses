@@ -27,6 +27,8 @@ import com.juanpablofajardo.schoolbuses.utils.milisecondsToSeconds
 
 /**
  * Created by Juan Pablo Fajardo Cano on 4/25/18.
+ *
+ * Presenter in charge of handling the logic of the Bus detail view.
  */
 class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, BusRouteInfoListener {
 
@@ -90,7 +92,6 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
             timeLeft = retryTime
             initializeCountDown()
 
-
             view.setBusStopsAmount(busRouteInfo.stops!!.size.toString())
             view.setBusTimeBetweenStops(getTimeFormatted(busRouteInfo.estimatedTime!!))
             view.setBusTotalRouteTime(getTimeFormatted(busRouteInfo.estimatedTime!! * busRouteInfo.stops!!.size))
@@ -98,7 +99,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
             setupRoutePolyLine()
             view.hideLoading()
         } else {
-
+            view.showConnectionAlert()
         }
     }
 
@@ -114,6 +115,14 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         }.start()
     }
 
+    /**
+     * This is the main method for the map
+     *
+     * First it transforms stops to LatLng objects, used by the Google Maps library
+     * It then validates the points, in case any of them is not within the route's defined tolerance
+     * After that, it iterates over each valid point, adds a marker for it to the map, and adds it to the polyline and to the bounds builder
+     * Lastly it sets the bounds to the map and the polyline
+     */
     private fun setupRoutePolyLine() {
         val stopPoints = mutableListOf<LatLng?>()
         busRouteInfo.stops!!.mapTo(stopPoints, {busStop -> if (busStop.latitude != null && busStop.longitude != null) LatLng(busStop.latitude, busStop.longitude) else null })
@@ -123,7 +132,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         val bounds = LatLngBounds.builder()
         val polyLineOptions = PolylineOptions()
 
-        stopPointsFiltered.forEachIndexed({index, point ->
+        stopPointsFiltered.forEach({point ->
             if (point != null) {
                 bounds.include(point)
                 polyLineOptions.add(point)
@@ -143,7 +152,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
     private fun validatePoints(initialPoints: List<LatLng?>): List<LatLng?> {
         val validPoints = mutableListOf<LatLng?>()
 
-        initialPoints.forEachIndexed({position, point ->
+        initialPoints.forEachIndexed({ position, _ ->
             val tempList = initialPoints.toMutableList()
             val removed = tempList.removeAt(position)
             if (PolyUtil.isLocationOnPath(removed, tempList, false, ROUTE_DISTANCE_TOLERANCE)) {
@@ -154,6 +163,9 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         return validPoints
     }
 
+    /**
+     * Format time from miliseconds to the custom format, including hours (if minutes are more than 60), minutes and seconds.
+     */
     private fun getTimeFormatted(timeToFormat: Long): String {
         val hours = timeToFormat.milisecondsGetHours().toInt()
         var minutes = timeToFormat.milisecondsGetMinutes().toInt()
@@ -176,7 +188,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
 
 
     override fun onBusRouteInfoFetchError() {
-
+        view.showConnectionAlert();
     }
 
     fun prepareToastMessage() {

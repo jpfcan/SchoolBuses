@@ -38,4 +38,6 @@ class GeneralActivity: BaseActivity() {
         }
     }
 
+
+
 }

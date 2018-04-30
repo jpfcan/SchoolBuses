@@ -9,6 +9,8 @@ import javax.inject.Inject
 
 /**
  * Created by Juan Pablo Fajardo Cano on 4/25/18.
+ *
+ * Model class used to fetch Bus route from sever via Retrofit
  */
 class BusDetailModel @Inject constructor() {
 
@@ -22,11 +24,13 @@ class BusDetailModel @Inject constructor() {
             override fun onResponse(call: Call<BusStopsResponse>?, response: Response<BusStopsResponse>?) {
                 if (response != null && response.isSuccessful && response.body() != null) {
                     listener.onBusRouteInfoFetchSuccess(response.body()!!)
+                } else {
+                    listener.onBusRouteInfoFetchError()
                 }
             }
 
             override fun onFailure(call: Call<BusStopsResponse>?, t: Throwable?) {
-
+                listener.onBusRouteInfoFetchError()
             }
         })
     }

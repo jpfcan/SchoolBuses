@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">School Buses Stops</string>
+    <string name="title_activity_map">Mapa</string>
+
+    <string name="reload_map">Recargar</string>
+    <string name="retry">Reintentar</string>
+    <string name="close">Cerrar</string>
+
+    <!-- PLACEHOLDERS -->
+    <string name="stops_amount_placeholder" formatted="false">Paradas: %s</string>
+    <string name="average_time_between_stops_placeholder" formatted="false">Tiempo promedio entre paradas: %s</string>
+    <string name="route_estimated_time_placeholder" formatted="false">Tiempo estimado ruta: %s</string>
+    <string name="time_left_reload_placeholder">Por favor espere %d segundos más para recargar.</string>
 
     <!-- HINTS -->
     <string name="bus_query_hint">Buscar bus</string>
 
+    <!-- ERROR -->
+    <string name="connection_error_message">Hubo un error obteniendo la informacion de los buses.</string>
 </resources>

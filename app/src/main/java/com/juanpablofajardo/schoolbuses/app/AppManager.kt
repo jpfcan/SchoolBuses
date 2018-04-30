@@ -10,6 +10,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 /**
  * Created by Juan Pablo Fajardo Cano on 4/24/18.
+ *
+ * Application class, where the necessary instances are created and initialized (Dagger and Retrofit).
  */
 class AppManager: Application() {
 

@@ -5,6 +5,8 @@
 
     <string name="empty_value_hyphens">--</string>
     <string name="reload_map">Reload</string>
+    <string name="retry">Retry</string>
+    <string name="close">Close</string>
 
     <string name="bus_icon_transition_name_base">bus_icon_trans_</string>
     <string name="bus_name_transition_name_base">bus_name_trans_</string>
@@ -20,5 +22,8 @@
 
     <!-- HINTS -->
     <string name="bus_query_hint">Search bus</string>
+
+    <!-- ERROR -->
+    <string name="connection_error_message">There was an error getting the buses information.</string>
 
 </resources>

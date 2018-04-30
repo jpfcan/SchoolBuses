@@ -18,8 +18,7 @@
             android:id="@+id/bus_icon"
             android:layout_width="@dimen/detail_fragment_bus_icon_size"
             android:layout_height="@dimen/detail_fragment_bus_icon_size"
-            android:transitionName="@string/bus_icon_transition_name_base"
-            android:src="@mipmap/ic_launcher_round"/>
+            android:transitionName="@string/bus_icon_transition_name_base" />
 
         <TextView
             android:id="@+id/bus_name"
