@@ -21,6 +21,8 @@ import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.util.TypedValue.applyDimension
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_GREEN
+import com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_RED
 import com.google.maps.android.PolyUtil
 import com.juanpablofajardo.schoolbuses.utils.milisecondsToSeconds
 
@@ -33,7 +35,7 @@ import com.juanpablofajardo.schoolbuses.utils.milisecondsToSeconds
 class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, BusRouteInfoListener {
 
     companion object {
-        const val MARKER_COLOR = 15F
+        const val MARKER_COLOR = 25F
         const val ZOOM_DP = 50F
         const val MINIMUM_RELOAD_TIME = 3000L
         const val COUNTDOWN_TICK = 1000L
@@ -66,6 +68,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         view.setBusIcon(bus.imageUrl)
         view.setBusName(bus.name)
         view.setBusDescription(bus.description)
+        view.showLoading()
         view.setupMapView()
     }
 
@@ -92,12 +95,11 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
             timeLeft = retryTime
             initializeCountDown()
 
-            view.setBusStopsAmount(busRouteInfo.stops!!.size.toString())
+            view.setBusStopsAmount((busRouteInfo.stops!!.size - 1).toString())
             view.setBusTimeBetweenStops(getTimeFormatted(busRouteInfo.estimatedTime!!))
-            view.setBusTotalRouteTime(getTimeFormatted(busRouteInfo.estimatedTime!! * busRouteInfo.stops!!.size))
+            view.setBusTotalRouteTime(getTimeFormatted(busRouteInfo.estimatedTime!! * (busRouteInfo.stops!!.size - 1)))
 
             setupRoutePolyLine()
-            view.hideLoading()
         } else {
             view.showConnectionAlert()
         }
@@ -132,14 +134,30 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         val bounds = LatLngBounds.builder()
         val polyLineOptions = PolylineOptions()
 
-        stopPointsFiltered.forEach({point ->
+        stopPointsFiltered.forEachIndexed({index, point ->
             if (point != null) {
                 bounds.include(point)
                 polyLineOptions.add(point)
 
                 val markerOptions = MarkerOptions()
                 markerOptions.position(point)
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(MARKER_COLOR))
+
+                when (index) {
+                    0 -> {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(HUE_GREEN))
+                        markerOptions.title(resources.getString(R.string.starting_point))
+                    }
+                    stopPointsFiltered.lastIndex -> {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(HUE_RED))
+                        markerOptions.title(resources.getString(R.string.last_stop_title))
+                        markerOptions.snippet(resources.getString(R.string.time_from_start_placeholder, getTimeFormatted(index * busRouteInfo.estimatedTime!!)))
+                    }
+                    else -> {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(MARKER_COLOR))
+                        markerOptions.title(resources.getString(R.string.stop_title_placeholder, index))
+                        markerOptions.snippet(resources.getString(R.string.time_from_start_placeholder, getTimeFormatted(index * busRouteInfo.estimatedTime!!)))
+                    }
+                }
 
                 view.addMarkerToMap(markerOptions)
             }
@@ -147,6 +165,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
 
         view.setMapZoomBounds(bounds.build(), applyDimension(COMPLEX_UNIT_DIP, ZOOM_DP, resources.displayMetrics).toInt())
         view.addPolyLineToMap(polyLineOptions)
+        view.hideLoading()
     }
 
     private fun validatePoints(initialPoints: List<LatLng?>): List<LatLng?> {

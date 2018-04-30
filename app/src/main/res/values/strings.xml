@@ -19,6 +19,12 @@
     <string name="time_with_hours_placeholder" formatted="false">%dh %dm %ds</string>
     <string name="time_no_hours_placeholder" formatted="false">%dm %ds</string>
     <string name="time_left_reload_placeholder">Please wait %d more seconds to reload</string>
+    <string name="stop_title_placeholder" formatted="false">Stop #%d</string>
+    <string name="time_from_start_placeholder" formatted="false">Time from route start: %s</string>
+
+    <!-- TITLES -->
+    <string name="starting_point">Route start</string>
+    <string name="last_stop_title">Last stop</string>
 
     <!-- HINTS -->
     <string name="bus_query_hint">Search bus</string>

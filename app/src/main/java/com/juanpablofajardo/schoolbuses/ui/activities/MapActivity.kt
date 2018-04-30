@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.content.DialogInterface.*
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v4.view.ViewCompat
 import android.support.v7.app.AlertDialog
@@ -65,7 +66,6 @@ class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView, OnClickLi
             presenter.setView(this)
             presenter.setResources(resources)
             presenter.setupInitialView(intent.getParcelableExtra(BUS_KEY))
-            presenter.fetchBusRouteInfo();
         }
     }
 
@@ -111,9 +111,11 @@ class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView, OnClickLi
     }
 
     override fun setupMapView() {
-        mapView.onCreate(null)
-        mapView.onResume()
-        mapView.getMapAsync(this)
+        Handler().postDelayed({
+            mapView.onCreate(null)
+            mapView.onResume()
+            mapView.getMapAsync(this)
+        }, 500)
     }
 
     override fun setBusStopsAmount(busStopsAmount: String?) {
@@ -182,6 +184,7 @@ class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView, OnClickLi
     override fun onMapReady(googleMap: GoogleMap) {
         MapsInitializer.initialize(this)
         this.googleMap = googleMap
+        presenter.fetchBusRouteInfo();
     }
 
     override fun getLayoutResource() = R.layout.activity_bus_detail
