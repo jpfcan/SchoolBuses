@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">School Buses Stops</string>
+    <string name="title_activity_map">Map</string>
+
+    <string name="empty_value_hyphens">--</string>
+    <string name="reload_map">Reload</string>
+
+    <string name="bus_icon_transition_name_base">bus_icon_trans_</string>
+    <string name="bus_name_transition_name_base">bus_name_trans_</string>
+    <string name="bus_description_transition_name_base">bus_description_trans</string>
+
+    <!-- PLACEHOLDERS -->
+    <string name="stops_amount_placeholder" formatted="false">Stops: %s</string>
+    <string name="average_time_between_stops_placeholder" formatted="false">Average time between stops: %s</string>
+    <string name="route_estimated_time_placeholder" formatted="false">Estimated route time: %s</string>
+    <string name="time_with_hours_placeholder" formatted="false">%dh %dm %ds</string>
+    <string name="time_no_hours_placeholder" formatted="false">%dm %ds</string>
+    <string name="time_left_reload_placeholder">Please wait %d more seconds to reload</string>
+
+    <!-- HINTS -->
+    <string name="bus_query_hint">Search bus</string>
+
+</resources>

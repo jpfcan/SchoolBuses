@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="division_size">1dp</dimen>
+    <dimen name="division_size_half">0.5dp</dimen>
+
+    <!-- MARGINS -->
+    <dimen name="margin_normal">10dp</dimen>
+    <dimen name="margin_large">20dp</dimen>
+    <dimen name="margin_xxlarge">50dp</dimen>
+
+    <dimen name="list_item_bus_arrow_size">25dp</dimen>
+    <dimen name="list_item_bus_icon_size">75dp</dimen>
+
+    <dimen name="detail_fragment_bus_icon_size">100dp</dimen>
+    <dimen name="detail_fragment_header_padding">20dp</dimen>
+
+</resources>
