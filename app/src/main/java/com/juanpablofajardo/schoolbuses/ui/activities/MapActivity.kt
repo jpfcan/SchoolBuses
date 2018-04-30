@@ -1,9 +1,13 @@
 package com.juanpablofajardo.schoolbuses.ui.activities
 
+import android.content.DialogInterface
+import android.content.DialogInterface.*
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.support.annotation.RequiresApi
 import android.support.v4.view.ViewCompat
+import android.support.v7.app.AlertDialog
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,7 +30,7 @@ import com.squareup.picasso.Picasso
 import kotterknife.bindView
 import javax.inject.Inject
 
-class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView {
+class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView, OnClickListener {
 
     companion object {
         const val BUS_KEY = "bus"
@@ -62,7 +66,6 @@ class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView {
             presenter.setView(this)
             presenter.setResources(resources)
             presenter.setupInitialView(intent.getParcelableExtra(BUS_KEY))
-            presenter.fetchBusRouteInfo();
         }
     }
 
@@ -108,9 +111,11 @@ class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView {
     }
 
     override fun setupMapView() {
-        mapView.onCreate(null)
-        mapView.onResume()
-        mapView.getMapAsync(this)
+        Handler().postDelayed({
+            mapView.onCreate(null)
+            mapView.onResume()
+            mapView.getMapAsync(this)
+        }, 500)
     }
 
     override fun setBusStopsAmount(busStopsAmount: String?) {
@@ -146,6 +151,28 @@ class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    override fun showConnectionAlert() {
+        val dialogBuilder = AlertDialog.Builder(this, R.style.DialogTheme)
+        val inflater = getLayoutInflater()
+
+        val dialogView = inflater.inflate(R.layout.dialog_connection_error, null)
+        dialogBuilder.setView(dialogView)
+        dialogBuilder.setPositiveButton(R.string.retry, this)
+        dialogBuilder.setNegativeButton(R.string.close, this)
+
+        val dialog = dialogBuilder.create()
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(false)
+        dialog.show()
+    }
+
+    override fun onClick(dialog: DialogInterface?, which: Int) {
+        when (which) {
+            BUTTON_POSITIVE -> presenter.fetchBusRouteInfo()
+            BUTTON_NEGATIVE -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) finishAfterTransition() else finish()
+        }
+    }
+
     override fun showLoading() {
         loadingView.visibility = VISIBLE
     }
@@ -157,6 +184,7 @@ class MapActivity : BaseActivity(), OnMapReadyCallback, BusDetailView {
     override fun onMapReady(googleMap: GoogleMap) {
         MapsInitializer.initialize(this)
         this.googleMap = googleMap
+        presenter.fetchBusRouteInfo();
     }
 
     override fun getLayoutResource() = R.layout.activity_bus_detail

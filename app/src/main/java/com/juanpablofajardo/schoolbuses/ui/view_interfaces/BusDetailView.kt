@@ -33,4 +33,6 @@ interface BusDetailView: BaseView {
 
     fun showTimeLeftMessage(message: String)
 
+    fun showConnectionAlert()
+
 }

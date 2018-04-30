@@ -21,17 +21,21 @@ import android.util.TypedValue
 import android.util.TypedValue.COMPLEX_UNIT_DIP
 import android.util.TypedValue.applyDimension
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_GREEN
+import com.google.android.gms.maps.model.BitmapDescriptorFactory.HUE_RED
 import com.google.maps.android.PolyUtil
 import com.juanpablofajardo.schoolbuses.utils.milisecondsToSeconds
 
 
 /**
  * Created by Juan Pablo Fajardo Cano on 4/25/18.
+ *
+ * Presenter in charge of handling the logic of the Bus detail view.
  */
 class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, BusRouteInfoListener {
 
     companion object {
-        const val MARKER_COLOR = 15F
+        const val MARKER_COLOR = 25F
         const val ZOOM_DP = 50F
         const val MINIMUM_RELOAD_TIME = 3000L
         const val COUNTDOWN_TICK = 1000L
@@ -64,6 +68,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         view.setBusIcon(bus.imageUrl)
         view.setBusName(bus.name)
         view.setBusDescription(bus.description)
+        view.showLoading()
         view.setupMapView()
     }
 
@@ -90,15 +95,13 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
             timeLeft = retryTime
             initializeCountDown()
 
-
-            view.setBusStopsAmount(busRouteInfo.stops!!.size.toString())
+            view.setBusStopsAmount((busRouteInfo.stops!!.size - 1).toString())
             view.setBusTimeBetweenStops(getTimeFormatted(busRouteInfo.estimatedTime!!))
-            view.setBusTotalRouteTime(getTimeFormatted(busRouteInfo.estimatedTime!! * busRouteInfo.stops!!.size))
+            view.setBusTotalRouteTime(getTimeFormatted(busRouteInfo.estimatedTime!! * (busRouteInfo.stops!!.size - 1)))
 
             setupRoutePolyLine()
-            view.hideLoading()
         } else {
-
+            view.showConnectionAlert()
         }
     }
 
@@ -114,6 +117,14 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         }.start()
     }
 
+    /**
+     * This is the main method for the map
+     *
+     * First it transforms stops to LatLng objects, used by the Google Maps library
+     * It then validates the points, in case any of them is not within the route's defined tolerance
+     * After that, it iterates over each valid point, adds a marker for it to the map, and adds it to the polyline and to the bounds builder
+     * Lastly it sets the bounds to the map and the polyline
+     */
     private fun setupRoutePolyLine() {
         val stopPoints = mutableListOf<LatLng?>()
         busRouteInfo.stops!!.mapTo(stopPoints, {busStop -> if (busStop.latitude != null && busStop.longitude != null) LatLng(busStop.latitude, busStop.longitude) else null })
@@ -130,7 +141,23 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
 
                 val markerOptions = MarkerOptions()
                 markerOptions.position(point)
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(MARKER_COLOR))
+
+                when (index) {
+                    0 -> {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(HUE_GREEN))
+                        markerOptions.title(resources.getString(R.string.starting_point))
+                    }
+                    stopPointsFiltered.lastIndex -> {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(HUE_RED))
+                        markerOptions.title(resources.getString(R.string.last_stop_title))
+                        markerOptions.snippet(resources.getString(R.string.time_from_start_placeholder, getTimeFormatted(index * busRouteInfo.estimatedTime!!)))
+                    }
+                    else -> {
+                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(MARKER_COLOR))
+                        markerOptions.title(resources.getString(R.string.stop_title_placeholder, index))
+                        markerOptions.snippet(resources.getString(R.string.time_from_start_placeholder, getTimeFormatted(index * busRouteInfo.estimatedTime!!)))
+                    }
+                }
 
                 view.addMarkerToMap(markerOptions)
             }
@@ -138,12 +165,13 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
 
         view.setMapZoomBounds(bounds.build(), applyDimension(COMPLEX_UNIT_DIP, ZOOM_DP, resources.displayMetrics).toInt())
         view.addPolyLineToMap(polyLineOptions)
+        view.hideLoading()
     }
 
     private fun validatePoints(initialPoints: List<LatLng?>): List<LatLng?> {
         val validPoints = mutableListOf<LatLng?>()
 
-        initialPoints.forEachIndexed({position, point ->
+        initialPoints.forEachIndexed({ position, _ ->
             val tempList = initialPoints.toMutableList()
             val removed = tempList.removeAt(position)
             if (PolyUtil.isLocationOnPath(removed, tempList, false, ROUTE_DISTANCE_TOLERANCE)) {
@@ -154,6 +182,9 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
         return validPoints
     }
 
+    /**
+     * Format time from miliseconds to the custom format, including hours (if minutes are more than 60), minutes and seconds.
+     */
     private fun getTimeFormatted(timeToFormat: Long): String {
         val hours = timeToFormat.milisecondsGetHours().toInt()
         var minutes = timeToFormat.milisecondsGetMinutes().toInt()
@@ -176,7 +207,7 @@ class BusDetailPresenter @Inject constructor(): BasePresenter<BusDetailView>, Bu
 
 
     override fun onBusRouteInfoFetchError() {
-
+        view.showConnectionAlert();
     }
 
     fun prepareToastMessage() {

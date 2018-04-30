@@ -74,7 +74,7 @@ class BusListFragment: BaseFragment(), BusListView {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 navigator.goToBusItemDetailWithTransition(activity!!, selectedBus, sharedElements, suffix)
             } else {
-                navigator.goToBusItemDetailWithoutTransition(activity!!, selectedBus, sharedElements, suffix)
+                navigator.goToBusItemDetailWithoutTransition(activity!!, selectedBus)
             }
         }
     }
